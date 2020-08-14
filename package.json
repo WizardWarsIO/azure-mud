@@ -18,11 +18,13 @@
   "dependencies": {
     "@aspnet/signalr": "^1.1.4",
     "axios": "^0.19.2",
+    "konva": "^7.0.5",
     "node-emoji": "^1.10.0",
     "react": "^16.13.1",
     "react-contextmenu": "^2.14.0",
     "react-dom": "^16.13.1",
     "react-icons": "^3.10.0",
+    "react-konva": "^16.13.0-6",
     "react-tooltip": "^4.2.8",
     "simple-peer": "^9.7.2"
   },
