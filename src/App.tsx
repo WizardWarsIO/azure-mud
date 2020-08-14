@@ -125,6 +125,7 @@ const App = () => {
         >
           <div id="app">
             <RoomListView
+              currentRoom={state.roomData[state.roomId]}
               rooms={Object.values(state.roomData)}
               username={state.userMap[state.userId].username}
             />

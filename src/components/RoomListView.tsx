@@ -2,67 +2,98 @@ import React from 'react'
 import { Room } from '../room'
 import { moveToRoom } from '../networking'
 import MenuButtonView from './MenuButtonView'
-import { Stage, Layer, Star, Text } from 'react-konva'
+import { Stage, Layer, Star, Text, Rect } from 'react-konva'
 
 import '../../style/nav.css'
 
 interface Props {
+  currentRoom: Room;
   rooms: Room[];
   username: string;
 }
 
-function generateShapes () {
-  return [...Array(4)].map((_, i) => ({
-    id: i.toString(),
-    x: Math.random() * 200,
-    y: Math.random() * 200,
-    rotation: Math.random() * 180,
-    isDragging: false
-  }))
-}
-
-const INITIAL_STATE = generateShapes()
-
 export default function RoomListView (props: Props) {
-  const stars = generateShapes()
-  console.log('STARS')
-  console.log(stars)
+  // TODO: Make this dynamic?
+  const canvasWidth = 300
+  const canvasHeight = 300
+
+  // This is what we render before we get the actual data from the server
+  if (!props.currentRoom) {
+    return (
+      <nav id="side-menu" role="navigation" aria-label="List of rooms you can navigate to">
+        <MenuButtonView username={props.username} />
+        <Stage width={canvasWidth} height={canvasHeight} />
+      </nav>
+    )
+  }
+
+  const centerX = canvasWidth / 2
+  const centerY = canvasWidth / 2
+  const roomWidth = 100
+  const roomHeight = 100
+
+  const currentPosition = props.currentRoom.position
 
   return (
     <nav id="side-menu" role="navigation" aria-label="List of rooms you can navigate to">
       <MenuButtonView username={props.username} />
-      <Stage width={200} height={200}>
+      <Stage width={canvasWidth} height={canvasHeight}>
         <Layer>
-          <Text text="Try to drag a star" />
-          {stars.map((star) => (
-            <Star
-              key={star.id}
-              id={star.id}
-              x={star.x}
-              y={star.y}
-              numPoints={5}
-              innerRadius={20}
-              outerRadius={40}
-              fill="#89b717"
-              opacity={0.8}
-              draggable
-              rotation={star.rotation}
-              shadowColor="black"
-              shadowBlur={10}
-              shadowOpacity={0.6}
-              shadowOffsetX={star.isDragging ? 10 : 5}
-              shadowOffsetY={star.isDragging ? 10 : 5}
-              scaleX={star.isDragging ? 1.2 : 1}
-              scaleY={star.isDragging ? 1.2 : 1}
+          {
+            props.rooms.map((room) => (
+              <Text
+                key={room.id}
+                x={5 + centerX - (roomWidth / 2) + ((room.position[0] - currentPosition[0]) * roomWidth)}
+                y={5 + centerY - (roomHeight / 2) + ((room.position[1] - currentPosition[1]) * roomHeight)}
+                width={roomWidth - 10}
+                height={roomHeight - 10}
+                stroke={'white'}
+                fill={'white'}
+                text={room.name + ' ' + (room.users ? `(${room.users.length})` : '')}
+                fontSize={13}
+                strokeWidth={0}
+              />
+            ))
+          }
+          {
+            props.rooms.map((room) => {
+              const onClick = () => {
+                moveToRoom(room.id)
+              }
+              return (
+                <Rect
+                  key={room.id}
+                  x={centerX - (roomWidth / 2) + ((room.position[0] - currentPosition[0]) * roomWidth)}
+                  y={centerY - (roomHeight / 2) + ((room.position[1] - currentPosition[1]) * roomHeight)}
+                  width={roomWidth}
+                  height={roomHeight}
+                  stroke={'white'}
+                  onClick={onClick}
+                />
+              )
+            })
+          }
+          {
+            <Text
+              key={props.username}
+              x={centerX - (roomHeight / 2) + 5}
+              y={centerY + (roomHeight / 2) - 17}
+              width={roomWidth}
+              height={roomHeight}
+              stroke={'red'}
+              fill={'red'}
+              text={'YOU ARE HERE'}
+              fontSize={12}
+              strokeWidth={0}
             />
-          ))}
+          }
         </Layer>
       </Stage>
     </nav>
   )
 }
 
-const RoomListItem = (props: { room: Room }) => {
+const RoomRect = (props: { room: Room }) => {
   const { room } = props
 
   const onClick = () => {

@@ -6,6 +6,7 @@ export interface Room {
   description: string;
   users?: string[];
   allowsMedia: boolean;
+  position: [number, number]
 }
 
 export function convertServerRoomData (roomData: {
@@ -20,7 +21,8 @@ export function convertServerRoomData (roomData: {
       id: room.id,
       shortName: room.shortName,
       description: room.description,
-      allowsMedia: room.allowsMedia
+      allowsMedia: room.allowsMedia,
+      position: room.position
     }
   })
 

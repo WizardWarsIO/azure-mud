@@ -12,6 +12,9 @@ export interface Room {
 
   // If true, webRTC audio/video chat can happen
   allowsMedia?: boolean;
+
+  // x, y coordinates
+  position: [number, number]
 }
 
 export const roomData: { [name: string]: Room } = {
@@ -21,20 +24,23 @@ export const roomData: { [name: string]: Room } = {
     shortName: 'the kitchen',
     description: `A series of long picnic tables made of rustic wood abut a stainless steel kitchen island. On the island are a few samovars of Sightglass coffee — don't worry, there's plenty of decaf too — and hot water for tea, plus a few trays of Arizmendi pastries.
       From here, you can walk over to the [[bar]] or grab a seat in the [[main theatre area->theatre]].`,
-    allowsMedia: true
+    allowsMedia: true,
+    position: [0, 1]
   },
   theatre: {
     id: 'theatre',
     displayName: 'GitHub HQ: Theatre',
     shortName: 'the theatre',
     // kawa: fixed typo, changed src to Twitch per issue #89. Note 'parent' will need to be changed if we change domains, see issue #88. Twitch documentation about 'parent': https://discuss.dev.twitch.tv/t/twitch-embedded-player-updates-in-2020/23956
-    description: 'A stage, confusingly decorated with Halloween skulls and streamers. There are a few dozen flimsy metal chairs you can sit in, plus some comfy couches in the back. You can leave to the [[kitchen]], the [[bar]], or the [[arcade]].<br/><br/><center><iframe width="560" height="315" src="https://player.twitch.tv/?channel=roguelike_con&parent=lazerwalker.com" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></center><br/>'
+    description: 'A stage, confusingly decorated with Halloween skulls and streamers. There are a few dozen flimsy metal chairs you can sit in, plus some comfy couches in the back. You can leave to the [[kitchen]], the [[bar]], or the [[arcade]].<br/><br/><center><iframe width="560" height="315" src="https://player.twitch.tv/?channel=roguelike_con&parent=lazerwalker.com" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></center><br/>',
+    position: [1, 1]
   },
   bar: {
     id: 'bar',
     displayName: 'GitHub HQ: Bar',
     shortName: 'the bar',
-    description: 'A beautiful long bar with hundreds of bottles spanning up to the ceiling. A friendly bartender will happily make you whatever you want. A laminated sign on the bartop advertises tonight\'s specials: the Tourist (a non-alcoholic drink with lots of fruit and a fun umbrella), the Berlin Interpretation (a mojito made with some sort of hyper-caffeinated soda), and the Walls Are Shifting (a Long Island Iced Tea).<br/><br/>You\'re a stone\'s throw away from the [[kitchen]], the [[theatre]], and the [[arcade]].'
+    description: 'A beautiful long bar with hundreds of bottles spanning up to the ceiling. A friendly bartender will happily make you whatever you want. A laminated sign on the bartop advertises tonight\'s specials: the Tourist (a non-alcoholic drink with lots of fruit and a fun umbrella), the Berlin Interpretation (a mojito made with some sort of hyper-caffeinated soda), and the Walls Are Shifting (a Long Island Iced Tea).<br/><br/>You\'re a stone\'s throw away from the [[kitchen]], the [[theatre]], and the [[arcade]].',
+    position: [0, 0]
   },
   arcade: {
     id: 'arcade',
@@ -45,7 +51,8 @@ export const roomData: { [name: string]: Room } = {
       
       <center><iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=porklike" allowfullscreen width="621" height="513" style="border:none; overflow:hidden"></iframe></center><br/><br/>
       
-      From here, you can get back to the [[bar]] or the [[theatre]].`
+      From here, you can get back to the [[bar]] or the [[theatre]].`,
+    position: [1, 0]
   },
   conference: {
     id: 'conference',
@@ -53,6 +60,7 @@ export const roomData: { [name: string]: Room } = {
     shortName: 'the conference room',
     description:
       "An executive conference room, straight out of a movie: a beautiful mahogany conferenece table, floor-to-ceiling windows overlooking the city, top-of-the-line conference equipment. A poster hangs on the wall expressing Garfield's hatred of Mondays, but it's impeccably framed and very classy.",
-    allowsMedia: true
+    allowsMedia: true,
+    position: [2, 2]
   }
 }
