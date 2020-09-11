@@ -5,12 +5,13 @@ import {
   getNetworkMediaChatStatus
 } from '../networking'
 import NameView from './NameView'
-import { DispatchContext } from '../App'
+import { DispatchContext, UserMapContext } from '../App'
 import { StopVideoChatAction, ShowModalAction, PrepareToStartVideoChatAction } from '../Actions'
 import { FaVideo } from 'react-icons/fa'
-
+import { Stage, Layer, Star, Text, Rect } from 'react-konva'
 import '../../style/room.css'
 import { Modal } from '../modals'
+import Konva from 'konva'
 
 interface Props {
   room?: Room;
@@ -129,9 +130,56 @@ const PresenceView = (props: { users?: string[]; userId?: string, videoUsers: st
       )
     }
 
+    const { userMap, myId } = React.useContext(UserMapContext)
+    const roomCanvasWidth = 300
+    const roomCanvasHeight = 100
+
+    const userRefs = []
+    
+    React.useEffect(() => {
+      userRefs.map((text) => {
+        text.to({
+          x: 50,
+          y: 50,
+          duration: 2
+        })
+      })
+    })
+
     return (
       <div id="dynamic-room-description">
-        Also here {users.length === 1 ? 'is' : 'are'} {names}.
+        <Stage width={roomCanvasWidth} height={roomCanvasHeight}>
+          <Layer>
+            <Rect
+              x={10}
+              y={10}
+              width={roomCanvasWidth - 20}
+              height={roomCanvasHeight - 20}
+              strokeWidth={1}
+              stroke="white"
+            />
+            {
+              users.map((user) => 
+                <Text 
+                  ref={(instance) => { userRefs.push(instance) }}
+                  key={user}
+                  text={userMap[user].username}
+                  stroke='white'
+                  fill='white'
+                  strokeWidth={0}
+                />
+              )
+            }
+            <Text
+              ref={(instance) => { userRefs.push(instance) }}
+              key={myId}
+              text={userMap[myId].username}
+              stroke='white'
+              fill='white'
+              strokeWidth={0}
+            />
+          </Layer>
+        </Stage>
       </div>
     )
   } else {
