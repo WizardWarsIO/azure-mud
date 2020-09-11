@@ -100,10 +100,6 @@ const PresenceView = (props: { users?: string[]; userId?: string, videoUsers: st
     // TODO: This should happen in the reducer
     let names
 
-    if (users.length === 0) {
-      return <div id="dynamic-room-description">You are all alone here.</div>
-    }
-
     const userViews = users.map((u, idx) => {
       const id = `presence-${idx}`
       if (videoUsers && videoUsers.includes(u)) {
@@ -133,16 +129,18 @@ const PresenceView = (props: { users?: string[]; userId?: string, videoUsers: st
     const { userMap, myId } = React.useContext(UserMapContext)
     const roomCanvasWidth = 300
     const roomCanvasHeight = 100
-
     const userRefs = []
     
     React.useEffect(() => {
       userRefs.map((text) => {
-        text.to({
-          x: 50,
-          y: 50,
-          duration: 2
-        })
+        console.log(text.getX())
+        if (text.getX() < 9) {
+          text.to({
+            x: Math.floor(Math.random() * (roomCanvasWidth - 20 - text.getWidth()) + 10),
+            y: Math.floor(Math.random() * (roomCanvasHeight - 20 - text.getHeight()) + 10),
+            duration: 2
+          })
+        }
       })
     })
 
@@ -160,13 +158,15 @@ const PresenceView = (props: { users?: string[]; userId?: string, videoUsers: st
             />
             {
               users.map((user) => 
-                <Text 
+                <Text
                   ref={(instance) => { userRefs.push(instance) }}
                   key={user}
                   text={userMap[user].username}
                   stroke='white'
                   fill='white'
                   strokeWidth={0}
+                  x={0}
+                  y={50}
                 />
               )
             }
