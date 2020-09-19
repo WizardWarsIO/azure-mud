@@ -13,7 +13,8 @@ import {
   createModMessage,
   createMovedRoomMessage,
   createSameRoomMessage,
-  isDeletable
+  isDeletable,
+  createCommandMessage
 } from './message'
 import { Room } from './room'
 import {
@@ -23,11 +24,11 @@ import {
   toggleUserMod
 } from './networking'
 import { PublicUser, MinimalUser } from '../server/src/user'
-import { disconnectAllPeers, stopAudioAnalyserLoop } from './webRTC'
+import { disconnectAllPeers, stopAudioAnalyserLoop, stopAllDeviceUsage } from './webRTC'
 import { v4 as uuidv4 } from 'uuid'
 import { Modal } from './modals'
 import { matchingSlashCommand, SlashCommandType } from './SlashCommands'
-import { useReducer } from 'react'
+import { MAX_MESSAGE_LENGTH } from '../server/src/config'
 
 export interface State {
   authenticated: boolean;
@@ -264,6 +265,7 @@ export default (oldState: State, action: Action): State => {
     setNetworkMediaChatStatus(false)
     disconnectAllPeers()
     stopAudioAnalyserLoop()
+    stopAllDeviceUsage()
     delete state.localMediaStreamId
     delete state.otherMediaStreamPeerIds
     state.inMediaChat = false
@@ -276,15 +278,21 @@ export default (oldState: State, action: Action): State => {
     const beginsWithSlash = /^\/.+?/.exec(trimmedMessage)
     const matching = beginsWithSlash ? matchingSlashCommand(trimmedMessage) : undefined
 
-    if (beginsWithSlash && matching === undefined) {
+    if (trimmedMessage.length > MAX_MESSAGE_LENGTH) {
+      addMessage(state, createErrorMessage('Your message is too long! Please try to keep it under ~600 characters!'))
+    } else if (beginsWithSlash && matching === undefined) {
       const commandStr = /^(\/.+?) (.+)/.exec(trimmedMessage)
       addMessage(state, createErrorMessage(`Your command ${commandStr ? commandStr[1] : action.value} is not a registered slash command!`))
-    } else if (beginsWithSlash) {
-      sendChatMessage(messageId, trimmedMessage)
+    } else if (beginsWithSlash && matching.type === SlashCommandType.Whisper) {
+      const commandStr = /^(\/.+?) (.+)/.exec(trimmedMessage)
+      const parsedUsernameMessage = /^(.+?) (.+)/.exec(commandStr[2])
 
-      if (matching.type === SlashCommandType.Whisper) {
-        const commandStr = /^(\/.+?) (.+)/.exec(trimmedMessage)
-        const [_, username, message] = /^(.+?) (.+)/.exec(commandStr[2])
+      if (!parsedUsernameMessage) {
+        addMessage(state, createErrorMessage(`Your whisper to ${commandStr[2]} had no message!`))
+      } else {
+        sendChatMessage(messageId, trimmedMessage)
+
+        const [_, username, message] = parsedUsernameMessage
         const user = Object.values(state.userMap).find(
           (u) => u.username === username
         )
@@ -292,9 +300,16 @@ export default (oldState: State, action: Action): State => {
         if (userId) {
           addMessage(state, createWhisperMessage(userId, message, true))
         }
-      } else if (matching.type === SlashCommandType.Help) {
-        state.activeModal = Modal.Help
       }
+    } else if (beginsWithSlash && matching.type === SlashCommandType.Help) {
+      state.activeModal = Modal.Help
+      addMessage(state, createCommandMessage("You consult the help docs. (You can also find them in sidebar!)"))
+    } else if (beginsWithSlash && matching.type === SlashCommandType.Look) {
+      const commandStr = /^(\/.+?) (.+)/.exec(trimmedMessage)
+      addMessage(state, createCommandMessage(`You attempt to examine ${commandStr[2]}. (You can also click on their username and select Profile!)`))
+      sendChatMessage(messageId, trimmedMessage)
+    } else if (beginsWithSlash) {
+      sendChatMessage(messageId, trimmedMessage)
     } else {
       sendChatMessage(messageId, action.value)
       addMessage(state, createChatMessage(messageId, state.userId, action.value))
